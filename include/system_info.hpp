@@ -23,4 +23,4 @@ private:
     std::string read_file_content(const std::string& path) const;
 };
 
-#endif
+#endif // SYSTEM_INFO_HPP

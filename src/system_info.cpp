@@ -1,15 +1,15 @@
 #include "system_info.hpp"
 #include <fstream>
 
-std::string SystemInfo::read_file_content(const std::string & patch) const {
-    std::ifstream file(patch);
-    std::string content;
+std::string SystemInfo::read_file_content(const std::string& path) const {
+    std::ifstream file(path);
 
-    if (file.is_open()) {
-        std::getline(file, content);
-    } else {
-        content = "Unknown";
+    if (!file) {
+        return "Unknown";
     }
+
+    std::string content;
+    std::getline(file, content);
     return content;
 }
 
