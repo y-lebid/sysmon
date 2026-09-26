@@ -63,6 +63,51 @@ std::string SystemInfo::read_os_release(const std::string& key) const {
 
     return "Unknown";
 }
+std::string SystemInfo::get_uptime() const {
+    std::ifstream file("/proc/uptime");
+
+    if (!file) {
+        return "Unknown";
+    }
+
+    double uptime_seconds;
+    file >> uptime_seconds;
+
+    long total_seconds = static_cast<long>(uptime_seconds);
+
+    long days = total_seconds / 86400;
+    total_seconds %= 86400;
+
+    long hours = total_seconds / 3600;
+    total_seconds %= 3600;
+
+    long minutes = total_seconds / 60;
+
+
+    std::string result;
+
+    if (days > 0) {
+        result += std::to_string(days) + (days == 1 ? " day" : " days");
+    }
+
+    if (hours > 0) {
+        if (!result.empty()) {
+            result += ", ";
+        }
+
+        result += std::to_string(hours) + (hours == 1 ? " hour" : " hours");
+    }
+
+    if (minutes > 0) {
+        if (!result.empty()) {
+            result += ", ";
+        }
+
+        result += std::to_string(minutes) + (minutes == 1 ? " minute" : " minutes");
+    }
+
+    return result.empty() ? "Less than a minute" : result;
+}
 
 std::string SystemInfo::get_vendor() const { return vendor_; }
 std::string SystemInfo::get_product_name() const { return product_name_; }

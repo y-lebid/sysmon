@@ -17,6 +17,7 @@ public:
     std::string get_architecture() const;
     std::string get_hostname() const;
     std::string get_os_version() const;
+    std::string get_uptime() const;
 
 private:
     std::string vendor_;
@@ -29,6 +30,7 @@ private:
     std::string architecture_;
     std::string hostname_;
     std::string os_version_;
+    std::string uptime_;
 
 
     std::string read_file_content(const std::string& path) const;
