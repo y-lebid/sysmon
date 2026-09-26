@@ -16,6 +16,7 @@ public:
     std::string get_kernel_version() const;
     std::string get_architecture() const;
     std::string get_hostname() const;
+    std::string get_os_version() const;
 
 private:
     std::string vendor_;
@@ -27,8 +28,11 @@ private:
     std::string kernel_version_;
     std::string architecture_;
     std::string hostname_;
+    std::string os_version_;
+
 
     std::string read_file_content(const std::string& path) const;
+    std::string read_os_release(const std::string& key) const;
 };
 
 #endif // SYSTEM_INFO_HPP

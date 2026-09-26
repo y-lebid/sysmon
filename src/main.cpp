@@ -7,8 +7,10 @@ int main() {
     std::cout << "=== System Information ===" << std::endl;
     std::cout << "Hostname:        " << info.get_hostname() << std::endl;
     std::cout << "OS:              " << info.get_os_name() << std::endl;
+    std::cout << "OS Version:      " << info.get_os_version() << std::endl;
     std::cout << "Kernel:          " << info.get_kernel_version() << std::endl;
     std::cout << "Architecture:    " << info.get_architecture() << std::endl;
+
 
     std::cout << "\n=== Hardware ===" << std::endl;
     std::cout << "Vendor:          " << info.get_vendor() << std::endl;
