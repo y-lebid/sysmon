@@ -24,6 +24,9 @@ SystemInfo::SystemInfo() {
     os_name_ = read_os_release("NAME");
     os_version_ = read_os_release("VERSION_ID");
 
+    cpu_model_ = read_cpu_info("model name");
+    cpu_cores_ = std::stoi(read_cpu_info("cpu cores"));
+    cpu_threads_ = count_cpu_threads();
 
     struct utsname system_info;
 
@@ -63,6 +66,7 @@ std::string SystemInfo::read_os_release(const std::string& key) const {
 
     return "Unknown";
 }
+
 std::string SystemInfo::get_uptime() const {
     std::ifstream file("/proc/uptime");
 
@@ -83,11 +87,11 @@ std::string SystemInfo::get_uptime() const {
 
     long minutes = total_seconds / 60;
 
-
     std::string result;
 
     if (days > 0) {
-        result += std::to_string(days) + (days == 1 ? " day" : " days");
+        result += std::to_string(days) +
+                  (days == 1 ? " day" : " days");
     }
 
     if (hours > 0) {
@@ -95,7 +99,8 @@ std::string SystemInfo::get_uptime() const {
             result += ", ";
         }
 
-        result += std::to_string(hours) + (hours == 1 ? " hour" : " hours");
+        result += std::to_string(hours) +
+                  (hours == 1 ? " hour" : " hours");
     }
 
     if (minutes > 0) {
@@ -103,17 +108,69 @@ std::string SystemInfo::get_uptime() const {
             result += ", ";
         }
 
-        result += std::to_string(minutes) + (minutes == 1 ? " minute" : " minutes");
+        result += std::to_string(minutes) +
+                  (minutes == 1 ? " minute" : " minutes");
     }
 
     return result.empty() ? "Less than a minute" : result;
 }
 
-std::string SystemInfo::get_vendor() const { return vendor_; }
-std::string SystemInfo::get_product_name() const { return product_name_; }
-std::string SystemInfo::get_product_version() const { return product_version_; }
-std::string SystemInfo::get_serial_number() const { return serial_number_; }
-std::string SystemInfo::get_uuid() const { return uuid_; }
+std::string SystemInfo::read_cpu_info(const std::string& key) const {
+    std::ifstream file("/proc/cpuinfo");
+
+    if (!file) {
+        return "Unknown";
+    }
+
+    std::string line;
+
+    while (std::getline(file, line)) {
+        if (line.rfind(key + "\t:", 0) == 0) {
+            return line.substr(line.find(':') + 2);
+        }
+    }
+
+    return "Unknown";
+}
+
+int SystemInfo::count_cpu_threads() const {
+    std::ifstream file("/proc/cpuinfo");
+
+    if (!file) {
+        return 0;
+    }
+
+    std::string line;
+    int threads = 0;
+
+    while (std::getline(file, line)) {
+        if (line.rfind("processor", 0) == 0) {
+            threads++;
+        }
+    }
+
+    return threads;
+}
+
+std::string SystemInfo::get_vendor() const {
+    return vendor_;
+}
+
+std::string SystemInfo::get_product_name() const {
+    return product_name_;
+}
+
+std::string SystemInfo::get_product_version() const {
+    return product_version_;
+}
+
+std::string SystemInfo::get_serial_number() const {
+    return serial_number_;
+}
+
+std::string SystemInfo::get_uuid() const {
+    return uuid_;
+}
 
 std::string SystemInfo::get_os_name() const {
     return os_name_;
@@ -133,4 +190,16 @@ std::string SystemInfo::get_hostname() const {
 
 std::string SystemInfo::get_os_version() const {
     return os_version_;
+}
+
+std::string SystemInfo::get_cpu_model() const {
+    return cpu_model_;
+}
+
+int SystemInfo::get_cpu_cores() const {
+    return cpu_cores_;
+}
+
+int SystemInfo::get_cpu_threads() const {
+    return cpu_threads_;
 }
