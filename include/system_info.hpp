@@ -3,7 +3,8 @@
 
 #include <string>
 
-class SystemInfo {
+class SystemInfo
+{
 public:
     SystemInfo();
 
@@ -23,6 +24,10 @@ public:
     int get_cpu_cores() const;
     int get_cpu_threads() const;
 
+    double get_ram_total() const;
+    double get_ram_available() const;
+    double get_ram_used() const;
+
 private:
     std::string vendor_;
     std::string product_name_;
@@ -40,11 +45,15 @@ private:
     int cpu_cores_;
     int cpu_threads_;
 
-    std::string read_file_content(const std::string& path) const;
-    std::string read_os_release(const std::string& key) const;
+    long long ram_total_;
+    long long ram_available_;
 
-    std::string read_cpu_info(const std::string& key) const;
+    std::string read_file_content(const std::string &path) const;
+    std::string read_os_release(const std::string &key) const;
+
+    std::string read_cpu_info(const std::string &key) const;
     int count_cpu_threads() const;
+    long long read_ram_info(const std::string &key) const;
 };
 
 #endif // SYSTEM_INFO_HPP

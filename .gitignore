@@ -1,1 +1,12 @@
+cat > .gitignore <<'EOF'
+# CMake
+build/
+cmake-build-*/
+
+# CLion
 .idea/
+
+# Compiled files
+*.o
+*.obj
+*.exe

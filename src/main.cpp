@@ -1,7 +1,9 @@
 #include "system_info.hpp"
 #include <iostream>
+#include <iomanip>
 
-int main() {
+int main()
+{
     SystemInfo info;
 
     std::cout << "╭─ sysmon ────────────────────────────────────╮\n";
@@ -25,7 +27,13 @@ int main() {
     std::cout << "  CPU\n";
     std::cout << "  ├─ Model          " << info.get_cpu_model() << '\n';
     std::cout << "  ├─ Cores          " << info.get_cpu_cores() << '\n';
-    std::cout << "  └─ Threads        " << info.get_cpu_threads() << '\n';
+    std::cout << "  └─ Threads        " << info.get_cpu_threads() << "\n\n";
+
+    std::cout << "  RAM\n";
+    std::cout << std::fixed << std::setprecision(2);
+    std::cout << "  ├─ Total          " << info.get_ram_total() << " GB\n";
+    std::cout << "  ├─ Available      " << info.get_ram_available() << " GB\n";
+    std::cout << "  └─ Used           " << info.get_ram_used() << " GB\n";
 
     return 0;
 }
