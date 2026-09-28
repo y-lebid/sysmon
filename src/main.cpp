@@ -35,5 +35,10 @@ int main()
     std::cout << "  ├─ Available      " << info.get_ram_available() << " GB\n";
     std::cout << "  └─ Used           " << info.get_ram_used() << " GB\n";
 
+    std::cout << "\n  GPU\n";
+    std::cout << "  ├─ Vendor         " << info.get_gpu_vendor() << '\n';
+    std::cout << "  └─ Model          " << info.get_gpu_model() << "\n\n";
+
     return 0;
+
 }

@@ -1,9 +1,12 @@
 #include "system_info.hpp"
+
+#include <cctype>
 #include <fstream>
-#include <sys/utsname.h>
 #include <sstream>
 
-std::string SystemInfo::read_file_content(const std::string &path) const
+#include <sys/utsname.h>
+
+std::string SystemInfo::read_file_content(const std::string& path) const
 {
     std::ifstream file(path);
 
@@ -14,6 +17,7 @@ std::string SystemInfo::read_file_content(const std::string &path) const
 
     std::string content;
     std::getline(file, content);
+
     return content;
 }
 
@@ -31,8 +35,18 @@ SystemInfo::SystemInfo()
     cpu_model_ = read_cpu_info("model name");
     cpu_cores_ = std::stoi(read_cpu_info("cpu cores"));
     cpu_threads_ = count_cpu_threads();
+
     ram_total_ = read_ram_info("MemTotal");
     ram_available_ = read_ram_info("MemAvailable");
+
+    std::string gpu_vendor_id = get_gpu_id("vendor");
+    std::string gpu_device_id = get_gpu_id("device");
+
+    gpu_vendor_ = get_pci_vendor_name(gpu_vendor_id);
+    gpu_model_ = get_pci_device_name(
+        gpu_vendor_id,
+        gpu_device_id
+    );
 
     struct utsname system_info;
 
@@ -50,7 +64,7 @@ SystemInfo::SystemInfo()
     hostname_ = read_file_content("/etc/hostname");
 }
 
-std::string SystemInfo::read_os_release(const std::string &key) const
+std::string SystemInfo::read_os_release(const std::string& key) const
 {
     std::ifstream file("/etc/os-release");
 
@@ -136,7 +150,7 @@ std::string SystemInfo::get_uptime() const
     return result.empty() ? "Less than a minute" : result;
 }
 
-std::string SystemInfo::read_cpu_info(const std::string &key) const
+std::string SystemInfo::read_cpu_info(const std::string& key) const
 {
     std::ifstream file("/proc/cpuinfo");
 
@@ -181,7 +195,7 @@ int SystemInfo::count_cpu_threads() const
     return threads;
 }
 
-long long SystemInfo::read_ram_info(const std::string &key) const
+long long SystemInfo::read_ram_info(const std::string& key) const
 {
     std::ifstream file("/proc/meminfo");
 
@@ -199,7 +213,10 @@ long long SystemInfo::read_ram_info(const std::string &key) const
             long long value;
             std::string unit;
 
-            std::istringstream stream(line.substr(key.length() + 1));
+            std::istringstream stream(
+                line.substr(key.length() + 1)
+            );
+
             stream >> value >> unit;
 
             if (unit == "kB")
@@ -213,6 +230,138 @@ long long SystemInfo::read_ram_info(const std::string &key) const
 
     return 0;
 }
+
+std::string SystemInfo::get_gpu_id(const std::string& type) const
+{
+    const std::string path =
+        "/sys/class/drm/card1/device/" + type;
+
+    std::string value = read_file_content(path);
+
+    if (value.rfind("0x", 0) == 0)
+    {
+        value = value.substr(2);
+    }
+
+    return value;
+}
+
+std::string SystemInfo::get_pci_vendor_name(
+    const std::string& vendor_id) const
+{
+    if (vendor_id == "Unknown")
+    {
+        return "Unknown";
+    }
+
+    std::ifstream file("/usr/share/hwdata/pci.ids");
+
+    if (!file)
+    {
+        return "Unknown";
+    }
+
+    std::string line;
+
+    while (std::getline(file, line))
+    {
+        if (line.empty() || line[0] == '\t')
+        {
+            continue;
+        }
+
+        std::istringstream stream(line);
+
+        std::string id;
+        stream >> id;
+
+        if (id != vendor_id)
+        {
+            continue;
+        }
+
+        std::string vendor_name;
+        std::getline(stream, vendor_name);
+
+        if (!vendor_name.empty() &&
+            vendor_name.front() == ' ')
+        {
+            vendor_name.erase(0, 1);
+        }
+
+        return vendor_name;
+    }
+
+    return "Unknown";
+}
+
+std::string SystemInfo::get_pci_device_name(
+    const std::string& vendor_id,
+    const std::string& device_id) const
+{
+    if (vendor_id == "Unknown" ||
+        device_id == "Unknown")
+    {
+        return "Unknown";
+    }
+
+    std::ifstream file("/usr/share/hwdata/pci.ids");
+
+    if (!file)
+    {
+        return "Unknown";
+    }
+
+    std::string line;
+    bool vendor_found = false;
+
+    while (std::getline(file, line))
+    {
+        if (line.empty())
+        {
+            continue;
+        }
+
+        std::istringstream stream(line);
+
+        std::string id;
+        stream >> id;
+
+        if (!vendor_found)
+        {
+            if (id == vendor_id &&
+                !std::isspace(static_cast<unsigned char>(line[0])))
+            {
+                vendor_found = true;
+            }
+
+            continue;
+        }
+
+        if (line[0] != '\t' &&
+            line[0] != ' ')
+        {
+            break;
+        }
+
+        if (id == device_id)
+        {
+            std::string device_name;
+            std::getline(stream, device_name);
+
+            if (!device_name.empty() &&
+                device_name.front() == ' ')
+            {
+                device_name.erase(0, 1);
+            }
+
+            return device_name;
+        }
+    }
+
+    return "Unknown";
+}
+
 std::string SystemInfo::get_vendor() const
 {
     return vendor_;
@@ -277,18 +426,31 @@ int SystemInfo::get_cpu_threads() const
 {
     return cpu_threads_;
 }
+
 double SystemInfo::get_ram_total() const
 {
-    return static_cast<double>(ram_total_) / (1024 * 1024 * 1024);
+    return static_cast<double>(ram_total_) /
+           (1024 * 1024 * 1024);
 }
 
 double SystemInfo::get_ram_available() const
 {
-    return static_cast<double>(ram_available_) / (1024 * 1024 * 1024);
+    return static_cast<double>(ram_available_) /
+           (1024 * 1024 * 1024);
 }
 
 double SystemInfo::get_ram_used() const
 {
     return static_cast<double>(ram_total_ - ram_available_) /
            (1024 * 1024 * 1024);
+}
+
+std::string SystemInfo::get_gpu_vendor() const
+{
+    return gpu_vendor_;
+}
+
+std::string SystemInfo::get_gpu_model() const
+{
+    return gpu_model_;
 }

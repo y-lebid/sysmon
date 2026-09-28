@@ -28,6 +28,9 @@ public:
     double get_ram_available() const;
     double get_ram_used() const;
 
+    std::string get_gpu_model() const;
+    std::string get_gpu_vendor() const;
+
 private:
     std::string vendor_;
     std::string product_name_;
@@ -48,12 +51,23 @@ private:
     long long ram_total_;
     long long ram_available_;
 
-    std::string read_file_content(const std::string &path) const;
-    std::string read_os_release(const std::string &key) const;
+    std::string gpu_model_;
+    std::string gpu_vendor_;
 
-    std::string read_cpu_info(const std::string &key) const;
+    std::string read_file_content(const std::string& path) const;
+    std::string read_os_release(const std::string& key) const;
+
+    std::string read_cpu_info(const std::string& key) const;
     int count_cpu_threads() const;
-    long long read_ram_info(const std::string &key) const;
+
+    long long read_ram_info(const std::string& key) const;
+
+    std::string get_gpu_id(const std::string& type) const;
+
+    std::string get_pci_vendor_name(const std::string& vendor_id) const;
+
+    std::string get_pci_device_name(const std::string& vendor_id,
+                                    const std::string& device_id) const;
 };
 
 #endif // SYSTEM_INFO_HPP
