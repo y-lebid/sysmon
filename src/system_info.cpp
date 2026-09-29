@@ -6,7 +6,7 @@
 
 #include <sys/utsname.h>
 
-std::string SystemInfo::read_file_content(const std::string& path) const
+std::string SystemInfo::read_file_content(const std::string &path) const
 {
     std::ifstream file(path);
 
@@ -45,8 +45,7 @@ SystemInfo::SystemInfo()
     gpu_vendor_ = get_pci_vendor_name(gpu_vendor_id);
     gpu_model_ = get_pci_device_name(
         gpu_vendor_id,
-        gpu_device_id
-    );
+        gpu_device_id);
 
     struct utsname system_info;
 
@@ -64,7 +63,7 @@ SystemInfo::SystemInfo()
     hostname_ = read_file_content("/etc/hostname");
 }
 
-std::string SystemInfo::read_os_release(const std::string& key) const
+std::string SystemInfo::read_os_release(const std::string &key) const
 {
     std::ifstream file("/etc/os-release");
 
@@ -150,7 +149,7 @@ std::string SystemInfo::get_uptime() const
     return result.empty() ? "Less than a minute" : result;
 }
 
-std::string SystemInfo::read_cpu_info(const std::string& key) const
+std::string SystemInfo::read_cpu_info(const std::string &key) const
 {
     std::ifstream file("/proc/cpuinfo");
 
@@ -195,7 +194,7 @@ int SystemInfo::count_cpu_threads() const
     return threads;
 }
 
-long long SystemInfo::read_ram_info(const std::string& key) const
+long long SystemInfo::read_ram_info(const std::string &key) const
 {
     std::ifstream file("/proc/meminfo");
 
@@ -214,8 +213,7 @@ long long SystemInfo::read_ram_info(const std::string& key) const
             std::string unit;
 
             std::istringstream stream(
-                line.substr(key.length() + 1)
-            );
+                line.substr(key.length() + 1));
 
             stream >> value >> unit;
 
@@ -231,7 +229,7 @@ long long SystemInfo::read_ram_info(const std::string& key) const
     return 0;
 }
 
-std::string SystemInfo::get_gpu_id(const std::string& type) const
+std::string SystemInfo::get_gpu_id(const std::string &type) const
 {
     const std::string path =
         "/sys/class/drm/card1/device/" + type;
@@ -247,7 +245,7 @@ std::string SystemInfo::get_gpu_id(const std::string& type) const
 }
 
 std::string SystemInfo::get_pci_vendor_name(
-    const std::string& vendor_id) const
+    const std::string &vendor_id) const
 {
     if (vendor_id == "Unknown")
     {
@@ -296,8 +294,8 @@ std::string SystemInfo::get_pci_vendor_name(
 }
 
 std::string SystemInfo::get_pci_device_name(
-    const std::string& vendor_id,
-    const std::string& device_id) const
+    const std::string &vendor_id,
+    const std::string &device_id) const
 {
     if (vendor_id == "Unknown" ||
         device_id == "Unknown")
@@ -417,6 +415,16 @@ std::string SystemInfo::get_cpu_model() const
     return cpu_model_;
 }
 
+std::string SystemInfo::get_gpu_vendor() const
+{
+    return gpu_vendor_;
+}
+
+std::string SystemInfo::get_gpu_model() const
+{
+    return gpu_model_;
+}
+
 int SystemInfo::get_cpu_cores() const
 {
     return cpu_cores_;
@@ -443,14 +451,4 @@ double SystemInfo::get_ram_used() const
 {
     return static_cast<double>(ram_total_ - ram_available_) /
            (1024 * 1024 * 1024);
-}
-
-std::string SystemInfo::get_gpu_vendor() const
-{
-    return gpu_vendor_;
-}
-
-std::string SystemInfo::get_gpu_model() const
-{
-    return gpu_model_;
 }
