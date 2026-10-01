@@ -3,6 +3,7 @@
 #include <cctype>
 #include <fstream>
 #include <sstream>
+ #include <iostream>
 
 #include <sys/utsname.h>
 
@@ -294,8 +295,8 @@ std::string SystemInfo::get_pci_vendor_name(
 }
 
 std::string SystemInfo::get_pci_device_name(
-    const std::string &vendor_id,
-    const std::string &device_id) const
+    const std::string& vendor_id,
+    const std::string& device_id) const
 {
     if (vendor_id == "Unknown" ||
         device_id == "Unknown")
@@ -327,19 +328,12 @@ std::string SystemInfo::get_pci_device_name(
 
         if (!vendor_found)
         {
-            if (id == vendor_id &&
-                !std::isspace(static_cast<unsigned char>(line[0])))
+            if (id == vendor_id)
             {
                 vendor_found = true;
             }
 
             continue;
-        }
-
-        if (line[0] != '\t' &&
-            line[0] != ' ')
-        {
-            break;
         }
 
         if (id == device_id)
@@ -359,6 +353,7 @@ std::string SystemInfo::get_pci_device_name(
 
     return "Unknown";
 }
+
 
 std::string SystemInfo::get_vendor() const
 {
