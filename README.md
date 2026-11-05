@@ -1,5 +1,8 @@
 # 🖥️ sysmon
 
+> **Status: archived.** This project is no longer maintained. It is kept as a record of the work and as a learning reference. Issues and pull requests are closed.
+
+
 > ⚡ Lightweight Linux system information utility written in modern C++20.
 
 `sysmon` is a small command-line utility that collects system and hardware information directly from Linux system interfaces.
